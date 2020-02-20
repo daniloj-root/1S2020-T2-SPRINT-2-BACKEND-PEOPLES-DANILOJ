@@ -1,0 +1,10 @@
+CREATE DATABASE T_Peoples
+GO
+USE T_Peoples
+GO
+
+CREATE TABLE Funcionarios (
+	ID INT PRIMARY KEY IDENTITY,
+	Nome VARCHAR(100),
+	Sobrenome VARCHAR(100)
+)
