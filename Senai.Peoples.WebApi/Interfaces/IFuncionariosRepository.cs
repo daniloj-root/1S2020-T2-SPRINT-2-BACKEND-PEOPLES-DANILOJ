@@ -10,8 +10,8 @@ namespace Senai.Peoples.WebApi.Interfaces
     {
         IEnumerable<FuncionarioDomain> Listar();
         FuncionarioDomain ListarPorId(int id);
-        void Cadastrar(Funcionarios f);
-        void Atualizar(int id, Funcionarios f);
+        void Cadastrar(List<FuncionarioDomain> listaFuncionarios);
+        void Atualizar(int id, FuncionarioDomain f);
         void Deletar(int id);
     }
 }

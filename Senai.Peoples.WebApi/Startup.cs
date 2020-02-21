@@ -39,8 +39,7 @@ namespace Senai.Peoples.WebApi
             {
                 app.UseHsts();
             }
-
-            app.UseHttpsRedirection();
+            
             app.UseMvc();
         }
     }

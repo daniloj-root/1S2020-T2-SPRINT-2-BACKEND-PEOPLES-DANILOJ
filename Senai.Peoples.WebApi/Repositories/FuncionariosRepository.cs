@@ -11,17 +11,18 @@ namespace Senai.Peoples.WebApi.Repositories
     public class FuncionariosRepository : IFuncionariosRepository
     {
         private string StringConexao = "Data Source=DEV6\\SQLEXPRESS; initial catalog=T_Peoples; user Id=sa; pwd=sa@132;";
-        [
-                public IEnumerable<FuncionarioDomain> Listar()
+
+        public IEnumerable<FuncionarioDomain> Listar()
         {
             List<FuncionarioDomain> funcionarios = new List<FuncionarioDomain>();
             // Declara a SqlConnection passando a string de conexão
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
                 // Declara a instrução a ser executada
-                string query = "SELECT * FROM Funcionarios";
+                string query = "SELECT ID, Nome, Sobrenome FROM Funcionarios";
 
                 con.Open();
+
                 SqlDataReader rdr;
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
@@ -36,8 +37,6 @@ namespace Senai.Peoples.WebApi.Repositories
                             Nome = rdr["Nome"].ToString(),
                             Sobrenome = rdr["Sobrenome"].ToString()
                         };
-
-                        // Adiciona o funcionario criado à tabela funcionarios
                         funcionarios.Add(funcionario);
                     }
                 }
@@ -51,7 +50,7 @@ namespace Senai.Peoples.WebApi.Repositories
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
                 // Declara a instrução a ser executada
-                string query = "SELECT * FROM Funcionarios WHERE ID = @ID";
+                string query = "SELECT ID, Nome, Sobrenome FROM Funcionarios WHERE ID = @ID";
 
                 con.Open();
                 SqlDataReader rdr;
@@ -59,19 +58,22 @@ namespace Senai.Peoples.WebApi.Repositories
                 {
                     cmd.Parameters.AddWithValue("@ID", id);
                     rdr = cmd.ExecuteReader();
-
-                    FuncionarioDomain funcionario = new FuncionarioDomain
+                    if (rdr.Read())
                     {
-                        ID = Convert.ToInt32(rdr[0]),
-                        Nome = rdr["Nome"].ToString(),
-                        Sobrenome = rdr["Sobrenome"].ToString()
-                    };
-                    return funcionario;
+                        FuncionarioDomain funcionario = new FuncionarioDomain
+                        {
+                            ID = Convert.ToInt32(rdr["ID"]),
+                            Nome = rdr["Nome"].ToString(),
+                            Sobrenome = rdr["Sobrenome"].ToString()
+                        };
+                        return funcionario;
+                    }
+                    return null;
                 }
             }
         }
 
-        public void Atualizar(int id, FuncionarioDomain f)
+        public void Atualizar(int id, FuncionarioDomain funcionario)
         {
             var query = "UPDATE Funcionarios SET Nome = @Nome, Sobrenome = @Sobrenome WHERE ID = @ID";
 
@@ -81,18 +83,16 @@ namespace Senai.Peoples.WebApi.Repositories
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@Nome", f.Nome);
-                    cmd.Parameters.AddWithValue("@Sobrenome", f.Sobrenome);
-                    cmd.Parameters.AddWithValue("@ID", f.ID);
+                    cmd.Parameters.AddWithValue("@Nome", funcionario.Nome);
+                    cmd.Parameters.AddWithValue("@Sobrenome", funcionario.Sobrenome);
+                    cmd.Parameters.AddWithValue("@ID", funcionario.ID);
                     cmd.ExecuteReader();
                 }
             }
         }
 
-        public void Cadastrar(Funcionarios f)
+        public void Cadastrar(List<FuncionarioDomain> listaFuncionarios)
         {
-            var listaFuncionarios = f.listaFuncionarios;
-
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
                 string query = $"INSERT INTO Funcionarios (Nome, Sobrenome) VALUES";
@@ -141,11 +141,6 @@ namespace Senai.Peoples.WebApi.Repositories
                     cmd.ExecuteReader();
                 }
             }
-        }
-
-        public void Atualizar(int id, Funcionarios f)
-        {
-            throw new NotImplementedException();
         }
     }
 }

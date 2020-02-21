@@ -14,6 +14,6 @@ namespace Senai.Peoples.WebApi.Domains
 
     public class Funcionarios
     {
-        public List<FuncionarioDomain> listaFuncionarios { get; set; }
+        public List<FuncionarioDomain> funcionarios { get; set; }
     }
 }
