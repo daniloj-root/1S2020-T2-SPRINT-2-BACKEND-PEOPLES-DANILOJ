@@ -14,6 +14,8 @@ namespace Senai.Peoples.WebApi.Controllers
     [Produces("application/json")]
 
     [ApiController]
+
+    [Autorize]
     public class TiposUsuarioController : ControllerBase
     {
         private ITiposUsuarioRepository _tiposUsuarioRepository { get; set; }

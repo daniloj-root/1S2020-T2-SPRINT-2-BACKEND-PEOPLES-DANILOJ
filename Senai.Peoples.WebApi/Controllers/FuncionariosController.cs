@@ -21,11 +21,11 @@ namespace Senai.Peoples.WebApi.Controllers
     {
         private const string secretKey = "VGhyb3cgZG93biBhbGwgdGhlIHN0dWZmIGluIHRoZSBraXRjaGVuIGZvb2xlZCBhZ2FpbiB0aGlua2luZyB0aGUgZG9nIGxpa2VzIG1lIHBsYXk";
 
-        private IUsuariosRepository _usuariosRepository { get; set; }
+        private IFuncionariosRepository _usuariosRepository { get; set; }
 
         public UsuariosController()
         {
-            _usuariosRepository = new UsuariosRepository();
+            _usuariosRepository = new FuncionariosRepository();
         }
 
         // GET api/Usuarios

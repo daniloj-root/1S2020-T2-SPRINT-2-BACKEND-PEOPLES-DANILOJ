@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Senai.Peoples.WebApi.Interfaces
 {
-    interface IUsuariosRepository
+    interface IFuncionariosRepository
     {
         IEnumerable<UsuarioDomain> Listar();
         UsuarioDomain ListarPorId(int id);
