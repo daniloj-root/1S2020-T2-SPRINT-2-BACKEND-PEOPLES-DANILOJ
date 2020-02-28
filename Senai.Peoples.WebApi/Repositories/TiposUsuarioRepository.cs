@@ -1,5 +1,4 @@
 ﻿using Senai.Peoples.WebApi.Domains;
-using Senai.Peoples.WebApi.Enums;
 using Senai.Peoples.WebApi.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -8,19 +7,19 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Senai.Peoples.WebApi.Repositories
-{ 
-    public class FuncionariosRepository : IFuncionariosRepository
+{
+    public class TiposUsuarioRepository : ITiposUsuarioRepository
     {
         private string StringConexao = "Data Source=DEV6\\SQLEXPRESS; initial catalog=T_Peoples; user Id=sa; pwd=sa@132;";
 
-        public IEnumerable<UsuarioDomain> Listar()
+        public IEnumerable<TiposUsuarioDomain> Listar()
         {
-            List<UsuarioDomain> Usuarios = new List<UsuarioDomain>();
+            List<TiposUsuarioDomain> TiposUsuarios = new List<TiposUsuarioDomain>();
             // Declara a SqlConnection passando a string de conexão
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
                 // Declara a instrução a ser executada
-                string query = "SELECT ID, Nome, Sobrenome FROM Usuarios";
+                string query = "SELECT ID, Descricao FROM TiposUsuario";
 
                 con.Open();
 
@@ -32,29 +31,29 @@ namespace Senai.Peoples.WebApi.Repositories
 
                     while (rdr.Read())
                     {
-                        UsuarioDomain Usuario = new UsuarioDomain
+
+                        TiposUsuarioDomain TiposUsuario = new TiposUsuarioDomain
                         {
                             ID = Convert.ToInt32(rdr[0]),
-                            Nome = rdr["Nome"].ToString(),
-                            Sobrenome = rdr["Sobrenome"].ToString()
+                            Descricao = rdr["Descricao"].ToString()
                         };
-                        Usuarios.Add(Usuario);
+             
+                        TiposUsuarios.Add(TiposUsuario);
                     }
                 }
             }
-            return Usuarios;
+            return TiposUsuarios;
         }
 
-        public UsuarioDomain ListarPorId(int id)
+        public TiposUsuarioDomain ListarPorId(int id)
         {
             // Declara a SqlConnection passando a string de conexão
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
                 // Declara a instrução a ser executada
-                string query = $"SELECT ID, Nome, Sobrenome FROM Usuarios WHERE ID = @ID AND IdTipoUsuario = {TipoUsuario.FUNCIONARIO}";
+                string query = "SELECT ID, Descricao FROM TiposUsuario WHERE ID = @ID";
 
                 con.Open();
-
                 SqlDataReader rdr;
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
@@ -62,22 +61,21 @@ namespace Senai.Peoples.WebApi.Repositories
                     rdr = cmd.ExecuteReader();
                     if (rdr.Read())
                     {
-                        UsuarioDomain Usuario = new UsuarioDomain
+                        TiposUsuarioDomain TiposUsuario = new TiposUsuarioDomain
                         {
                             ID = Convert.ToInt32(rdr["ID"]),
-                            Nome = rdr["Nome"].ToString(),
-                            Sobrenome = rdr["Sobrenome"].ToString()
+                            Descricao = rdr["Descricao"].ToString()
                         };
-                        return Usuario;
+                        return TiposUsuario;
                     }
                     return null;
                 }
             }
         }
 
-        public void Atualizar(int id, UsuarioDomain Usuario)
+        public void Atualizar(int id, TiposUsuarioDomain TiposUsuario)
         {
-            var query = $"UPDATE Usuarios SET Nome = @Nome, Sobrenome = @Sobrenome WHERE ID = @ID AND IdTipoUsuario = {TipoUsuario.FUNCIONARIO}";
+            var query = "UPDATE TiposUsuario SET Descricao = @Descricao WHERE ID = @ID";
 
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
@@ -85,29 +83,28 @@ namespace Senai.Peoples.WebApi.Repositories
 
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
-                    cmd.Parameters.AddWithValue("@Nome", Usuario.Nome);
-                    cmd.Parameters.AddWithValue("@Sobrenome", Usuario.Sobrenome);
-                    cmd.Parameters.AddWithValue("@ID", Usuario.ID);
+                    cmd.Parameters.AddWithValue("@ID", TiposUsuario.ID);
+                    cmd.Parameters.AddWithValue("@Descricao", TiposUsuario.Descricao);
                     cmd.ExecuteReader();
                 }
             }
         }
 
-        public void Cadastrar(List<UsuarioDomain> listaUsuarios)
+        public void Cadastrar(List<TiposUsuarioDomain> listaTiposUsuarios)
         {
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
-                string query = $"INSERT INTO Usuarios (Nome, Sobrenome, @IdTipoUsuario) VALUES";
+                string query = $"INSERT INTO TiposUsuario (Descricao) VALUES";
                 var i = 1;
-                foreach (var Usuario in listaUsuarios)
+                foreach (var TiposUsuario in listaTiposUsuarios)
                 {
-                    if (Usuario != listaUsuarios.Last())
+                    if (TiposUsuario != listaTiposUsuarios.Last())
                     {
-                        query += $"(@Nome{i},@Sobrenome{i}),";
+                        query += $"(@Descricao{i}),";
                     }
                     else
                     {
-                        query += $"(@Nome{i}, @Sobrenome{i})";
+                        query += $"(@Descricao{i})";
                     }
                     i++;
                 }
@@ -116,16 +113,10 @@ namespace Senai.Peoples.WebApi.Repositories
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 {
                     i = 1;
-
-                    listaUsuarios = listaUsuarios.Where(u => u.IdTipoUsuario == (int) TipoUsuario.USUARIO || u.IdTipoUsuario == (int) TipoUsuario.FUNCIONARIO).ToList();
-
-                    foreach (var usuario in listaUsuarios)
+                    foreach (var tipoUsuario in listaTiposUsuarios)
                     {
-                        usuario.Nome = usuario.Nome.Replace("'", " ");
-                        usuario.Sobrenome = usuario.Sobrenome.Replace("'", " ");
-                        cmd.Parameters.AddWithValue($"@Nome{i}", usuario.Nome);
-                        cmd.Parameters.AddWithValue($"@Sobrenome{i}", usuario.Sobrenome);
-                        cmd.Parameters.AddWithValue($"@TipoUsuario{i}", usuario.IdTipoUsuario);
+                        var descricaoTratada = tipoUsuario.Descricao.Replace("'", " ");
+                        cmd.Parameters.AddWithValue($"@Descricao{i}", tipoUsuario.Descricao);
                         i++;
                     }
                     cmd.ExecuteReader();
@@ -135,7 +126,7 @@ namespace Senai.Peoples.WebApi.Repositories
 
         public void Deletar(int id)
         {
-            var query = "DELETE FROM Usuarios WHERE ID = @ID";
+            var query = "DELETE FROM TiposUsuario WHERE ID = @ID";
 
             using (SqlConnection con = new SqlConnection(StringConexao))
             {
